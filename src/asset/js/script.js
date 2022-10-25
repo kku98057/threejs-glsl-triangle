@@ -2,7 +2,9 @@ import * as THREE from "three";
 import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-// import fragment from "./fragment.glsl"
+
+// https://www.youtube.com/watch?v=_qJdpSr3HkM&t=139s
+
 export default class App {
   constructor() {
     this.renderer = new THREE.WebGLRenderer();
@@ -11,6 +13,7 @@ export default class App {
     this.renderer.setPixelRatio(devicePixelRatio >= 2 ? 2 : 1);
     this.container.appendChild(this.renderer.domElement);
     this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color(0xffffff);
 
     this.camera = new THREE.PerspectiveCamera(
       75,
@@ -18,7 +21,7 @@ export default class App {
       0.1,
       1000
     );
-    this.camera.position.set(0, 0, 5);
+    this.camera.position.set(0, 0, 2);
     this.time = 0;
     this.scene.add(this.camera);
     new OrbitControls(this.camera, this.renderer.domElement);
@@ -34,17 +37,19 @@ export default class App {
     this.scene.add(this.light);
   }
   addMesh() {
-    this.uniforms = {
-      u_time: { type: "f", value: 1.0 },
-      u_resolution: { type: "v2", value: new THREE.Vector2() },
-    };
-
-    this.geo = new THREE.PlaneGeometry(3, 3, 10, 10);
+    this.geo = new THREE.SphereGeometry(1, 30, 30);
     this.material = new THREE.ShaderMaterial({
-      uniforms: this.uniforms,
       fragmentShader: fragment,
-      vertexColors: vertex,
-      side: THREE.DoubleSide,
+      vertexShader: vertex,
+      uniforms: {
+        time: { type: "f", value: 1.0 },
+        resolution: { type: "v2", value: new THREE.Vector4() },
+        progress: {
+          type: "f",
+          value: 0,
+        },
+        side: THREE.DoubleSide,
+      },
     });
 
     this.mesh = new THREE.Mesh(this.geo, this.material);
@@ -56,12 +61,11 @@ export default class App {
   resize() {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.camera.aspect = window.innerWidth / window.innerHeight;
+
     this.camera.updateProjectionMatrix();
   }
   update() {
-    this.time += 0.01;
-    this.mesh.rotation.x = this.time;
-    this.mesh.rotation.y = this.time;
+    this.time += 0.1;
   }
   render() {
     this.renderer.render(this.scene, this.camera);

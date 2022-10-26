@@ -2,6 +2,7 @@ import * as THREE from "three";
 import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+// import { GUI } from 'dat.gui';
 // import fragment from "./fragment.glsl"
 export default class App {
   constructor() {
@@ -23,9 +24,17 @@ export default class App {
     this.scene.add(this.camera);
     new OrbitControls(this.camera, this.renderer.domElement);
     this.addMesh();
+    this.settings();
     this.setLight();
     this.setResize();
     this.render();
+  }
+  settings() {
+    this.settings = {
+      progress: 0,
+    };
+    // this.gui = new dat.GUI();
+    // this.gui.add(this.settings,'progress',0,1,0.01);
   }
   setLight() {
     this.color = 0xffffff;
@@ -34,16 +43,15 @@ export default class App {
     this.scene.add(this.light);
   }
   addMesh() {
-    this.uniforms = {
-      u_time: { type: "f", value: 1.0 },
-      u_resolution: { type: "v2", value: new THREE.Vector2() },
-    };
-
     this.geo = new THREE.PlaneGeometry(3, 3, 10, 10);
     this.material = new THREE.ShaderMaterial({
-      uniforms: this.uniforms,
+      uniforms: {
+        time: { type: "f", value: 1.0 },
+        resolution: { type: "v2", value: new THREE.Vector2() },
+        progress: { type: "f", value: 0 },
+      },
       fragmentShader: fragment,
-      vertexColors: vertex,
+      vertexShader: vertex,
       side: THREE.DoubleSide,
     });
 

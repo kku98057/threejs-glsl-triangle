@@ -49,3 +49,7 @@ npm install --save-dev webpack-glsl-loader
      loader: "threejs-glsl-loader",
     // Default values (can be omitted)
 },
+
+//선택사항 gui
+npm install dat.gui --save-dev
+import { GUI } from 'dat.gui'

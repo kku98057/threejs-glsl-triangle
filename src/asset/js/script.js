@@ -2,13 +2,18 @@ import * as THREE from "three";
 import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-// import * as dat from 'dat.gui';
-// import fragment from "./fragment.glsl"
+import * as dat from "dat.gui";
+
 export default class App {
   constructor() {
     this.renderer = new THREE.WebGLRenderer();
     this.container = document.querySelector(".webgl");
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setClearColor("#e9dbc2");
+    // 현실적인 빛의 값 설정
+    this.renderer.physicallyCorrectLights = true;
+    //  출력 렌더링 인코딩을 제어
+    this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.setPixelRatio(devicePixelRatio >= 2 ? 2 : 1);
     this.container.appendChild(this.renderer.domElement);
     this.scene = new THREE.Scene();
@@ -33,8 +38,8 @@ export default class App {
     this.settings = {
       progress: 0,
     };
-    // this.gui = new dat.GUI();
-    // this.gui.add(this.settings,'progress',0,1,0.01);
+    this.gui = new dat.GUI();
+    this.gui.add(this.settings, "progress", 0, 1, 0.01);
   }
   setLight() {
     this.color = 0xffffff;

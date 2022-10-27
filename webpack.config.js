@@ -42,7 +42,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(png|jpe?g|gif|svg|webp)$/i,
+        test: /\.(png|jpe?g|gif|svg|webp|glb)$/i,
         use: {
           loader: "file-loader",
           options: {
@@ -54,6 +54,12 @@ module.exports = {
         test: /\.(glsl|vert|frag)$/,
         loader: "threejs-glsl-loader",
         // Default values (can be omitted)
+      },
+      {
+        test: /\.ts$/i,
+        exclude: /node_modules/,
+        enforce: "pre",
+        loader: "ts-loader",
       },
       {
         test: /\.js$/,

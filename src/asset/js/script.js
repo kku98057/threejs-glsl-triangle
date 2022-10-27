@@ -3,13 +3,21 @@ import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as dat from "dat.gui";
+import car from "../3DTexture/model1.glb";
+import gsap from "gsap";
+// import "three-extend-material";
+import extend from "./extend";
+
+console.log(extend.extendMaterial);
 
 export default class App {
   constructor() {
-    this.renderer = new THREE.WebGLRenderer();
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.container = document.querySelector(".webgl");
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setClearColor("#e9dbc2");
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     // 현실적인 빛의 값 설정
     this.renderer.physicallyCorrectLights = true;
     //  출력 렌더링 인코딩을 제어
@@ -24,10 +32,11 @@ export default class App {
       0.1,
       1000
     );
-    this.camera.position.set(0, 0, 5);
+    this.camera.position.set(10, 10, 10);
     this.time = 0;
     this.scene.add(this.camera);
     new OrbitControls(this.camera, this.renderer.domElement);
+
     this.addMesh();
     this.settings();
     this.setLight();
@@ -45,10 +54,34 @@ export default class App {
     this.color = 0xffffff;
     this.intensity = 1;
     this.light = new THREE.DirectionalLight(this.color, this.intensity);
-    this.scene.add(this.light);
+
+    this.light2 = new THREE.SpotLight(0xffffff, 1, 0, Math.PI / 3, 0.3);
+    this.light2.position.set(0, 2, 2);
+    this.light2.target.position.set(0, 0, 0);
+    this.light2.castShadow = true;
+    this.light2.shadow.camera.near = 0.1;
+    this.light2.shadow.camera.far = 9;
+    this.light2.shadow.bias = 0.0001;
+    this.light2.shadow.mapSize.width = 2048;
+    this.light2.shadow.mapSize.height = 2048;
+
+    this.scene.add(this.light, this.light2);
   }
   addMesh() {
-    this.geo = new THREE.PlaneGeometry(3, 3, 10, 10);
+    // 바닥
+    let floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(15, 15, 100, 100),
+      new THREE.MeshStandardMaterial(0xcccccc)
+    );
+    floor.rotation.x = -Math.PI * 0.5;
+    floor.position.y = -1.1;
+    floor.castShadow = false;
+    floor.receiveShadow = true;
+    this.scene.add(floor);
+    // 정이십면체
+    this.geo = new THREE.IcosahedronGeometry(1, 3);
+    // sphereGeomatry로하 정의하면 가장자리로 갈수록 크기가 작아지므로 icoshedron을 사용
+    this.geo = new THREE.SphereGeometry(1, 32, 32).toNonIndexed();
     this.material = new THREE.ShaderMaterial({
       uniforms: {
         time: { type: "f", value: 1.0 },
@@ -58,9 +91,51 @@ export default class App {
       fragmentShader: fragment,
       vertexShader: vertex,
       side: THREE.DoubleSide,
+      wireframe: true,
     });
 
+    console.log(this.geo);
+
+    let len = this.geo.attributes.position.count;
+    let randoms = new Float32Array(len * 3);
+
+    for (let i = 0; i < len; i += 3) {
+      let r = Math.random();
+      randoms[i] = r;
+      randoms[i + 1] = r;
+      randoms[i + 2] = r;
+    }
+
+    this.geo.setAttribute("aRandom", new THREE.BufferAttribute(randoms, 1));
+
+    // material2
+    this.material2 = new THREE.MeshStandardMaterial({
+      color: 0xff0000,
+    });
+
+    // material 3
+    // this.material = THREE.extendMaterial(new THREE.MeshStandardMaterial(), {
+    //   class: THREE.CustomMaterial, // In this case ShaderMaterial would be fine too, just for some features such as envMap this is required
+
+    //   vertexHeader: "attribute float aRandom; uniform float time;",
+    //   vertex: {
+    //     transformEnd:
+    //       "transformed += normal * aRandom * (0.5* sin(time) + 0.5) * normal;",
+    //   },
+
+    //   uniforms: {
+    //     roughness: 0.75,
+    //     time: {
+    //       mixed: true, // Uniform will be passed to a derivative material (MeshDepthMaterial below)
+    //       linked: true, // Similar as shared, but only for derivative materials, so wavingMaterial will have it's own, but share with it's shadow material
+    //       value: 0,
+    //     },
+    //   },
+    // });
+
     this.mesh = new THREE.Mesh(this.geo, this.material);
+    this.mesh.castShadow = this.mesh.receiveShadow = true;
+
     this.scene.add(this.mesh);
   }
   setResize() {
@@ -72,9 +147,10 @@ export default class App {
     this.camera.updateProjectionMatrix();
   }
   update() {
-    this.time += 0.01;
-    this.mesh.rotation.x = this.time;
-    this.mesh.rotation.y = this.time;
+    this.time += 0.04;
+    // this.mesh.rotation.x = this.time;
+    // this.mesh.rotation.y = this.time;
+    this.material.uniforms.time.value = this.time;
   }
   render() {
     this.renderer.render(this.scene, this.camera);

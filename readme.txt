@@ -51,4 +51,5 @@ npm install --save-dev webpack-glsl-loader
 },
 
 //선택사항 gui
-npm install dat.gui --save-dev
+npm i dat.gui --save-dev
+npm i three-extend-material

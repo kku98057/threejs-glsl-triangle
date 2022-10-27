@@ -3,12 +3,6 @@ import fragment from "../shaders/fragment.glsl";
 import vertex from "../shaders/vertex.glsl";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as dat from "dat.gui";
-import car from "../3DTexture/model1.glb";
-import gsap from "gsap";
-// import "three-extend-material";
-import extend from "./extend";
-
-console.log(extend.extendMaterial);
 
 export default class App {
   constructor() {
@@ -61,6 +55,7 @@ export default class App {
     this.light2.castShadow = true;
     this.light2.shadow.camera.near = 0.1;
     this.light2.shadow.camera.far = 9;
+
     this.light2.shadow.bias = 0.0001;
     this.light2.shadow.mapSize.width = 2048;
     this.light2.shadow.mapSize.height = 2048;
@@ -71,11 +66,13 @@ export default class App {
     // 바닥
     let floor = new THREE.Mesh(
       new THREE.PlaneGeometry(15, 15, 100, 100),
-      new THREE.MeshStandardMaterial(0xcccccc)
+      new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+      })
     );
     floor.rotation.x = -Math.PI * 0.5;
-    floor.position.y = -1.1;
-    floor.castShadow = false;
+    floor.position.y = -1.8;
+
     floor.receiveShadow = true;
     this.scene.add(floor);
     // 정이십면체
@@ -91,7 +88,8 @@ export default class App {
       fragmentShader: fragment,
       vertexShader: vertex,
       side: THREE.DoubleSide,
-      wireframe: true,
+
+      // wireframe: true,
     });
 
     console.log(this.geo);
@@ -108,33 +106,9 @@ export default class App {
 
     this.geo.setAttribute("aRandom", new THREE.BufferAttribute(randoms, 1));
 
-    // material2
-    this.material2 = new THREE.MeshStandardMaterial({
-      color: 0xff0000,
-    });
-
-    // material 3
-    // this.material = THREE.extendMaterial(new THREE.MeshStandardMaterial(), {
-    //   class: THREE.CustomMaterial, // In this case ShaderMaterial would be fine too, just for some features such as envMap this is required
-
-    //   vertexHeader: "attribute float aRandom; uniform float time;",
-    //   vertex: {
-    //     transformEnd:
-    //       "transformed += normal * aRandom * (0.5* sin(time) + 0.5) * normal;",
-    //   },
-
-    //   uniforms: {
-    //     roughness: 0.75,
-    //     time: {
-    //       mixed: true, // Uniform will be passed to a derivative material (MeshDepthMaterial below)
-    //       linked: true, // Similar as shared, but only for derivative materials, so wavingMaterial will have it's own, but share with it's shadow material
-    //       value: 0,
-    //     },
-    //   },
-    // });
-
     this.mesh = new THREE.Mesh(this.geo, this.material);
-    this.mesh.castShadow = this.mesh.receiveShadow = true;
+    this.mesh.castShadow = true;
+    this.mesh.receiveShadow = true;
 
     this.scene.add(this.mesh);
   }
@@ -147,10 +121,11 @@ export default class App {
     this.camera.updateProjectionMatrix();
   }
   update() {
-    this.time += 0.04;
+    this.time += Math.random() * 0.1;
     // this.mesh.rotation.x = this.time;
     // this.mesh.rotation.y = this.time;
     this.material.uniforms.time.value = this.time;
+    // this.material.uniforms.progress.value = this.settings.progress;
   }
   render() {
     this.renderer.render(this.scene, this.camera);

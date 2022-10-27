@@ -55,6 +55,7 @@ module.exports = {
         loader: "threejs-glsl-loader",
         // Default values (can be omitted)
       },
+
       {
         test: /\.ts$/i,
         exclude: /node_modules/,

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-((THREE) => {
+const threeCustom = (THREE) => {
   // Author: Fyrestar https://mevedia.com (https://github.com/Fyrestar/THREE.extendMaterial)
 
   const {
@@ -1119,6 +1119,7 @@ import * as THREE from "three";
   sharedLightsUniforms = cloneUniforms(UniformsLib.lights, {}, false, true);
 
   if (Object.isExtensible(THREE)) {
+    console.log(THREE, "33");
     THREE.cloneUniforms = cloneUniforms;
     THREE.cloneUniform = cloneUniform;
     THREE.patchShader = patchShader;
@@ -1126,4 +1127,7 @@ import * as THREE from "three";
     THREE.extendMaterial = extendMaterial;
     THREE.CustomMaterial = CustomMaterial;
   }
-})(THREE);
+  return THREE;
+};
+
+export default threeCustom(THREE);

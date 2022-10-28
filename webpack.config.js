@@ -56,12 +56,12 @@ module.exports = {
         // Default values (can be omitted)
       },
 
-      {
-        test: /\.ts$/i,
-        exclude: /node_modules/,
-        enforce: "pre",
-        loader: "ts-loader",
-      },
+      // {
+      //   test: /\.tsx$/,
+      //   exclude: /node_modules/,
+      //   enforce: "pre",
+      //   use: ["ts-loader"],
+      // },
       {
         test: /\.js$/,
         loader: "babel-loader",
@@ -95,6 +95,7 @@ module.exports = {
       patterns: [
         { from: "./src/main.css", to: "./main.css" },
         { from: "./src/asset", to: "./asset" },
+        // { from: "./node_modules/three", to: "./three/examples" },
       ],
     }),
   ],
